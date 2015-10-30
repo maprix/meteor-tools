@@ -1,11 +1,18 @@
 ProjectInput = require './project-input'
 {CompositeDisposable} = require 'atom'
+ChildProcess = require 'child_process'
 
 module.exports =
 MeteorTools =
   inputPanel: null
   subscriptions: null
   projectName: null
+
+  execCallback: (error, stdout, stderr) ->
+    console.log('stdout: ' + stdout)
+    console.log('stderr: ' + stderr)
+    if error != null
+      console.log('exec error: ' + error)
 
   keyUpCallback: (event) ->
     code = event.keyCode
@@ -15,12 +22,15 @@ MeteorTools =
     else if code == 13
       @inputPanel.hide()
       projectName = @projectInput.getText()
-      projectPath = 'C:\\Users\\Marcus\\'+projectName
-      alert('Create project: '+projectName)
-      #child_process = require('child_process');
-      #child = child_process.spawn('C:\\Program Files (x86)\\Notepad++\\notepad++.exe')
-      atom.project.addPath(projectPath)
-      atom.workspace.open(projectPath+'\\'+projectName+'.js')
+      projectPath = atom.config.get("meteor-tools.meteorPath")+'\\'+projectName
+      alert('Create project: '+projectPath)
+      #child_process = require('child_process')
+      #child_process = new ChildProcess
+      child = ChildProcess.exec('meteor list',
+        cwd: 'C:\\Users\\Marcus\\simple-todos',
+        MeteorTools.execCallback)
+      #atom.project.addPath(projectPath)
+      #atom.workspace.open(projectPath+'\\'+projectName+'.js')
 
   activate: (state) ->
     @projectInput = new ProjectInput()
@@ -44,11 +54,11 @@ MeteorTools =
     meteorToolsViewState: @inputPanel.serialize()
 
   config:
-    'TestPath':
-      title: 'Test Path'
+    'meteorPath':
+      title: 'Meteor Path'
       type: 'string'
-      description: 'Maximum height of a console window.'
-      default: 'C:/TestPath'
+      description: 'Path where the meteor projects resist.'
+      default: process.env.USERPROFILE
       order: 1
 
   createNewProject: ->
