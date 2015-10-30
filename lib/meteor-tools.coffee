@@ -8,34 +8,39 @@ MeteorTools =
   subscriptions: null
   projectName: null
 
-  execCallback: (error, stdout, stderr) ->
-    console.log('stdout: ' + stdout)
-    console.log('stderr: ' + stderr)
-    if error != null
-      console.log('exec error: ' + error)
+  execStdoutCallback: (data) ->
+   console.log('stdout: ' + data)
+
+  execStderrCallback: (data) ->
+   console.error('stderr: ' + data)
+
+  execExitCallback: (data) ->
+    if data == 0
+      console.log('exit without error')
+    else
+      console.error('exit with error: ' + data)
 
   keyUpCallback: (event) ->
     code = event.keyCode
     if code == 27
       @inputPanel.hide()
-      console.log('Close!!!')
+      console.log('Canceled')
     else if code == 13
       @inputPanel.hide()
       projectName = @projectInput.getText()
       projectPath = atom.config.get("meteor-tools.meteorPath")+'\\'+projectName
-      alert('Create project: '+projectPath)
-      #child_process = require('child_process')
-      #child_process = new ChildProcess
-      child = ChildProcess.exec('meteor list',
-        cwd: 'C:\\Users\\Marcus\\simple-todos',
-        MeteorTools.execCallback)
+      #alert('Create project: '+projectPath)
+      child = ChildProcess.exec('meteor list', cwd: 'C:\\Users\\Marcus\\test2', silent: true)
+      # bind callback for output from the child process
+      child.stdout.on 'data', (data) => @execStdoutCallback(data)
+      child.stderr.on 'data', (data) => @execStderrCallback(data)
+      child.on 'exit', (data) => @execExitCallback(data)
       #atom.project.addPath(projectPath)
       #atom.workspace.open(projectPath+'\\'+projectName+'.js')
 
   activate: (state) ->
     @projectInput = new ProjectInput()
-    @projectInput.projectNameEditor.on 'keyup', (event) ->
-      MeteorTools.keyUpCallback(event)
+    @projectInput.projectNameEditor.on 'keyup', (event) => @keyUpCallback(event)
     @inputPanel = atom.workspace.addModalPanel(item: @projectInput, visible: false)
 
     # Events subscribed to in atom's system can be easily cleaned up with a CompositeDisposable
