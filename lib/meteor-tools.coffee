@@ -29,8 +29,12 @@ MeteorTools =
       @inputPanel.hide()
       projectName = @projectInput.getText()
       projectPath = atom.config.get("meteor-tools.meteorPath")+'\\'+projectName
+
+      editor = atom.workspace.getActivePaneItem()
+      file = editor?.buffer.file
+
       #alert('Create project: '+projectPath)
-      child = ChildProcess.exec('meteor list', cwd: 'C:\\Users\\Marcus\\test2', silent: true)
+      child = ChildProcess.exec('meteor list', cwd: 'C:\\Users\\Marcus\\test2')
       # bind callback for output from the child process
       child.stdout.on 'data', (data) => @execStdoutCallback(data)
       child.stderr.on 'data', (data) => @execStderrCallback(data)
