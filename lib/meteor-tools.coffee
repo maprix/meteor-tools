@@ -30,17 +30,27 @@ MeteorTools =
       projectName = @projectInput.getText()
       projectPath = atom.config.get("meteor-tools.meteorPath")+'\\'+projectName
 
-      editor = atom.workspace.getActivePaneItem()
-      file = editor?.buffer.file
+      # get project path for active editor
+      activeProjectPath = @getProjectPathForActiveBuffer()
+      console.log(activeProjectPath)
 
       #alert('Create project: '+projectPath)
-      child = ChildProcess.exec('meteor list', cwd: 'C:\\Users\\Marcus\\test2')
+      # child = ChildProcess.exec('meteor list', cwd: 'C:\\Users\\Marcus\\test2')
       # bind callback for output from the child process
-      child.stdout.on 'data', (data) => @execStdoutCallback(data)
-      child.stderr.on 'data', (data) => @execStderrCallback(data)
-      child.on 'exit', (data) => @execExitCallback(data)
+      #child.stdout.on 'data', (data) => @execStdoutCallback(data)
+      #child.stderr.on 'data', (data) => @execStderrCallback(data)
+      #child.on 'exit', (data) => @execExitCallback(data)
+
+      # open new project
       #atom.project.addPath(projectPath)
       #atom.workspace.open(projectPath+'\\'+projectName+'.js')
+
+  getProjectPathForActiveBuffer: () ->
+    editor = atom.workspace.getActivePaneItem()
+    editorPath = editor?.buffer.getPath()
+    projectPaths = atom.project.getPaths()
+    result = projectPath for projectPath in projectPaths when editorPath?.startsWith(projectPath)
+    return result
 
   activate: (state) ->
     @projectInput = new ProjectInput()
