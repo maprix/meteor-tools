@@ -7,18 +7,22 @@ MeteorTools =
   inputPanel: null
   subscriptions: null
   projectName: null
+  projectPath: null
 
-  execStdoutCallback: (data) ->
-   console.log('stdout: ' + data)
+  cpExecStdoutCallback: (data) ->
+   console.log(data)
 
-  execStderrCallback: (data) ->
-   console.error('stderr: ' + data)
+  cpExecStderrCallback: (data) ->
+   console.error(data)
 
-  execExitCallback: (data) ->
+  cpExecExitCallback: (data) ->
     if data == 0
-      console.log('exit without error')
+      # open new project
+      path = @projectPath + '\\' + @projectName
+      atom.project.addPath(path)
+      atom.workspace.open(path + '\\' + @projectName + '.js')
     else
-      console.error('exit with error: ' + data)
+      alert('Error during creating project')
 
   keyUpCallback: (event) ->
     code = event.keyCode
@@ -27,23 +31,14 @@ MeteorTools =
       console.log('Canceled')
     else if code == 13
       @inputPanel.hide()
-      projectName = @projectInput.getText()
-      projectPath = atom.config.get("meteor-tools.meteorPath")+'\\'+projectName
+      @projectName = @projectInput.getText()
+      @projectPath = atom.config.get("meteor-tools.meteorPath")
 
-      # get project path for active editor
-      activeProjectPath = @getProjectPathForActiveBuffer()
-      console.log(activeProjectPath)
-
-      #alert('Create project: '+projectPath)
-      # child = ChildProcess.exec('meteor list', cwd: 'C:\\Users\\Marcus\\test2')
+      child = ChildProcess.exec('meteor create '+@projectName, cwd: @projectPath)
       # bind callback for output from the child process
-      #child.stdout.on 'data', (data) => @execStdoutCallback(data)
-      #child.stderr.on 'data', (data) => @execStderrCallback(data)
-      #child.on 'exit', (data) => @execExitCallback(data)
-
-      # open new project
-      #atom.project.addPath(projectPath)
-      #atom.workspace.open(projectPath+'\\'+projectName+'.js')
+      child.stdout.on 'data', (data) => @cpExecStdoutCallback(data)
+      child.stderr.on 'data', (data) => @cpExecStderrCallback(data)
+      child.on 'exit', (data) => @cpExecExitCallback(data)
 
   getProjectPathForActiveBuffer: () ->
     editor = atom.workspace.getActivePaneItem()
@@ -85,3 +80,8 @@ MeteorTools =
     @inputPanel.show()
     @projectInput.projectNameEditor.focus()
     @projectInput.projectNameEditor.getModel().selectAll()
+
+  startMeteor: ->
+    # get project path for active editor
+    activeProjectPath = @getProjectPathForActiveBuffer()
+    console.log(activeProjectPath)
