@@ -9,7 +9,7 @@ class ConsolePanel extends View
       @div id: 'consoleTitle', =>
         @div class: "left-title", "Meteo Console"
         @div class: 'right-title', =>
-          @div class: "icon-gear"
+          @div id: "activityIndicator", class: "icon-gear"
       @div id: 'consoleContent'
 
   log: (text) ->
@@ -25,3 +25,9 @@ class ConsolePanel extends View
       '<div class="log">' +
       text.replace(new RegExp('\r?\n','g'), '<br />')
        + '</div>')
+
+  activityOn: () ->
+    @find("#activityIndicator").show()
+
+  activityOff: () ->
+    @find("#activityIndicator").hide()

@@ -20,6 +20,7 @@ MeteorTools =
     @console.error(data)
 
   cpExecExitCallback: (data) ->
+    @console.activityOff()
     if data == 0
       # open new project
       path = @projectPath + '\\' + @projectName
@@ -34,6 +35,8 @@ MeteorTools =
       @inputPanel.hide()
     else if code == 13
       @inputPanel.hide()
+      @console.activityOn()
+
       @projectName = @projectInput.getText()
       @projectPath = atom.config.get("meteor-tools.meteorPath")
 
@@ -52,6 +55,7 @@ MeteorTools =
 
   activate: (state) ->
     @console = new ConsolePanel()
+    @console.activityOff()
     @consolePanel = atom.workspace.addBottomPanel(item: @console, visible: false)
     @projectInput = new ProjectInput()
     @projectInput.projectNameEditor.on 'keyup', (event) => @keyUpCallback(event)
