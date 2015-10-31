@@ -5,9 +5,23 @@ class ConsolePanel extends View
   console: null
 
   @content: ->
-    @div =>
-      @div "Console:"
-      @div id: 'console', style: 'position: relative; padding: 5px; height: 150px; overflow: auto'
+    @div id: 'consolePane', =>
+      @div id: 'consoleTitle', =>
+        @div class: "left-title", "Meteo Console"
+        @div class: 'right-title', =>
+          @div class: "icon-gear"
+      @div id: 'consoleContent'
 
-  setText: (text) ->
-    @find("#console").append('<div>' + text + '</div>')
+  log: (text) ->
+    text.replace(new RegExp('\r?\n','g'), '<br />');
+    @find("#consoleContent").append(
+      '<div class="log">' +
+      text.replace(new RegExp('\r?\n','g'), '<br />')
+       + '</div>')
+
+  error: (text) ->
+    text.replace(new RegExp('\r?\n','g'), '<br />');
+    @find("#consoleContent").append(
+      '<div class="log">' +
+      text.replace(new RegExp('\r?\n','g'), '<br />')
+       + '</div>')

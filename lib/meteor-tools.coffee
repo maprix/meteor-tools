@@ -14,10 +14,10 @@ MeteorTools =
   projectPath: null
 
   cpExecStdoutCallback: (data) ->
-   console.log(data)
+    @console.log(data)
 
   cpExecStderrCallback: (data) ->
-   console.error(data)
+    @console.error(data)
 
   cpExecExitCallback: (data) ->
     if data == 0
@@ -32,7 +32,6 @@ MeteorTools =
     code = event.keyCode
     if code == 27
       @inputPanel.hide()
-      console.log('Canceled')
     else if code == 13
       @inputPanel.hide()
       @projectName = @projectInput.getText()
@@ -90,13 +89,17 @@ MeteorTools =
         @consolePanel.show()
 
   createNewProject: ->
-    @console.setText('another line')
     @projectInput.setText('new-project')
     @inputPanel.show()
     @projectInput.projectNameEditor.focus()
     @projectInput.projectNameEditor.getModel().selectAll()
 
   startMeteor: ->
+    # get project path for active editor
+    activeProjectPath = @getProjectPathForActiveBuffer()
+    console.log(activeProjectPath)
+
+  stopMeteor: ->
     # get project path for active editor
     activeProjectPath = @getProjectPathForActiveBuffer()
     console.log(activeProjectPath)
