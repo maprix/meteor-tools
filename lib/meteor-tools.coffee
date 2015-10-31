@@ -1,10 +1,14 @@
+ConsolePanel = require './console-panel'
 ProjectInput = require './project-input'
 {CompositeDisposable} = require 'atom'
 ChildProcess = require 'child_process'
 
 module.exports =
 MeteorTools =
+  console: null
+  consolePanel: null
   inputPanel: null
+  projectInput: null
   subscriptions: null
   projectName: null
   projectPath: null
@@ -48,24 +52,27 @@ MeteorTools =
     return result
 
   activate: (state) ->
+    @console = new ConsolePanel()
+    @consolePanel = atom.workspace.addBottomPanel(item: @console, visible: false)
     @projectInput = new ProjectInput()
     @projectInput.projectNameEditor.on 'keyup', (event) => @keyUpCallback(event)
     @inputPanel = atom.workspace.addModalPanel(item: @projectInput, visible: false)
 
     # Events subscribed to in atom's system can be easily cleaned up with a CompositeDisposable
     @subscriptions = new CompositeDisposable
-
-    # Register command that toggles this view
+    # Register commands that toggles this package
     @subscriptions.add atom.commands.add 'atom-workspace',
+      'meteor-tools:toggleConsole': => @toggleConsole()
       'meteor-tools:createNewProject': => @createNewProject()
 
   deactivate: ->
+    @consolePanel.destroy()
     @inputPanel.destroy()
-    @subscriptions.dispose()
     @projectInput.destroy()
+    @subscriptions.dispose()
 
   serialize: ->
-    meteorToolsViewState: @inputPanel.serialize()
+    meteorToolsViewState: @consolePanel.serialize()
 
   config:
     'meteorPath':
@@ -75,7 +82,15 @@ MeteorTools =
       default: process.env.USERPROFILE
       order: 1
 
+  toggleConsole: ->
+      #@console.addLine('another line')
+      if @consolePanel.isVisible()
+        @consolePanel.hide()
+      else
+        @consolePanel.show()
+
   createNewProject: ->
+    @console.setText('another line')
     @projectInput.setText('new-project')
     @inputPanel.show()
     @projectInput.projectNameEditor.focus()

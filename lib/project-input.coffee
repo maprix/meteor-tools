@@ -3,7 +3,6 @@
 module.exports =
 class ProjectInput extends View
   projectNameEditor: null
-  callback: null
 
   @content: ->
     @div =>

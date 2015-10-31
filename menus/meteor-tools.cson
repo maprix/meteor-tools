@@ -11,6 +11,10 @@
     'label': 'Meteor'
     'submenu': [
       {
+        'label': 'Toggle Console'
+        'command': 'meteor-tools:toggleConsole'
+      },
+      {
         'label': 'Create Meteor Project'
         'command': 'meteor-tools:createNewProject'
       }
