@@ -13,16 +13,20 @@ class ConsolePanel extends View
       @div id: 'consoleContent'
 
   log: (text) ->
-    @find("#consoleContent").append(
+    ele = @find("#consoleContent")
+    ele.append(
       '<div class="log">' +
       text.replace(new RegExp('\r?\n','g'), '<br />')
        + '</div>')
+    ele.scrollTop(ele[0].scrollHeight)
 
   error: (text) ->
-    @find("#consoleContent").append(
-      '<div class="log">' +
+    ele = @find("#consoleContent")
+    ele.append(
+      '<div class="error">' +
       text.replace(new RegExp('\r?\n','g'), '<br />')
        + '</div>')
+    ele.scrollTop(ele[0].scrollHeight)
 
   activityOn: () ->
     @find("#activityIndicator").show()
