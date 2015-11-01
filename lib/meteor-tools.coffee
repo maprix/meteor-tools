@@ -145,5 +145,7 @@ MeteorTools =
       @consolePanel.show()
       @console.activityOn()
       @console.log("=== Stopping Meteor process... ===")
-      ChildProcess.spawn("taskkill", ["/pid", @meteorProcess.pid, '/f', '/t']);
-      #@meteorProcess.kill('SIGKILL')
+      if process.platform == 'win32'
+        ChildProcess.spawn("taskkill", ["/pid", @meteorProcess.pid, '/f', '/t']);
+      else
+        @meteorProcess.kill('SIGKILL')
