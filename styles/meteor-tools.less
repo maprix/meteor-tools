@@ -39,6 +39,7 @@
 
 #consoleTitle .icon-gear {
   padding: 2px 0px 0px 0px;
+  animation: blinker 1s cubic-bezier(.5, 0, 1, 1) infinite alternate;
 }
 
 #consoleContent {
@@ -56,4 +57,9 @@
 
 #consoleContent .error {
   color: red;
+}
+
+@keyframes blinker {
+  from { opacity: 1; }
+  to { opacity: 0; }
 }
