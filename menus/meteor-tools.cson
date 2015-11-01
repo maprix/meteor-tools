@@ -17,6 +17,15 @@
       {
         'label': 'Create Meteor Project'
         'command': 'meteor-tools:createNewProject'
+      },
+      {type: 'separator'},
+      {
+        'label': 'Start Meteor'
+        'command': 'meteor-tools:startMeteor'
+      },
+      {
+        'label': 'Stop Meteor'
+        'command': 'meteor-tools:stopMeteor'
       }
     ]
   }

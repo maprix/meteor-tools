@@ -10,7 +10,9 @@
   "activationCommands": {
     "atom-workspace": [
         "meteor-tools:toggleConsole",
-        "meteor-tools:createNewProject"
+        "meteor-tools:createNewProject",
+        "meteor-tools:startMeteor",
+        "meteor-tools:stopMeteor"
       ]
   },
   "repository": "https://github.com/maprix/meteor-tools.git",

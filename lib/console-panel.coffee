@@ -13,14 +13,12 @@ class ConsolePanel extends View
       @div id: 'consoleContent'
 
   log: (text) ->
-    text.replace(new RegExp('\r?\n','g'), '<br />');
     @find("#consoleContent").append(
       '<div class="log">' +
       text.replace(new RegExp('\r?\n','g'), '<br />')
        + '</div>')
 
   error: (text) ->
-    text.replace(new RegExp('\r?\n','g'), '<br />');
     @find("#consoleContent").append(
       '<div class="log">' +
       text.replace(new RegExp('\r?\n','g'), '<br />')

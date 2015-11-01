@@ -12,14 +12,16 @@ MeteorTools =
   subscriptions: null
   projectName: null
   projectPath: null
+  meteorProcess: null
+  activeProjectPath: null
 
-  cpExecStdoutCallback: (data) ->
+  stdoutCallback: (data) ->
     @console.log(data)
 
-  cpExecStderrCallback: (data) ->
+  stderrCallback: (data) ->
     @console.error(data)
 
-  cpExecExitCallback: (data) ->
+  createProjectExitCallback: (data) ->
     @console.activityOff()
     if data == 0
       # open new project
@@ -28,6 +30,12 @@ MeteorTools =
       atom.workspace.open(path + '\\' + @projectName + '.js')
     else
       alert('Error during creating project')
+
+  meteorExitCallback: (data) ->
+    @console.activityOff()
+    @meteorProcess = null
+    @activeProjectPath = null
+    @console.log("Meteor was stopped\n&nbsp")
 
   keyUpCallback: (event) ->
     code = event.keyCode
@@ -38,13 +46,14 @@ MeteorTools =
       @console.activityOn()
 
       @projectName = @projectInput.getText()
-      @projectPath = atom.config.get("meteor-tools.meteorPath")
+      @projectPath = atom.config.get("meteor-tools.meteorProjectHome")
 
+      @console.log("=== Creating Meteor project " + @projectName + " in " + @projectPath + "... ===")
       child = ChildProcess.exec('meteor create '+@projectName, cwd: @projectPath)
       # bind callback for output from the child process
-      child.stdout.on 'data', (data) => @cpExecStdoutCallback(data)
-      child.stderr.on 'data', (data) => @cpExecStderrCallback(data)
-      child.on 'exit', (data) => @cpExecExitCallback(data)
+      child.stdout.on 'data', (data) => @stdoutCallback(data)
+      child.stderr.on 'data', (data) => @stderrCallback(data)
+      child.on 'exit', (data) => @createProjectExitCallback(data)
 
   getProjectPathForActiveBuffer: () ->
     editor = atom.workspace.getActivePaneItem()
@@ -67,6 +76,8 @@ MeteorTools =
     @subscriptions.add atom.commands.add 'atom-workspace',
       'meteor-tools:toggleConsole': => @toggleConsole()
       'meteor-tools:createNewProject': => @createNewProject()
+      'meteor-tools:startMeteor': => @startMeteor()
+      'meteor-tools:stopMeteor': => @stopMeteor()
 
   deactivate: ->
     @consolePanel.destroy()
@@ -78,10 +89,10 @@ MeteorTools =
     meteorToolsViewState: @consolePanel.serialize()
 
   config:
-    'meteorPath':
+    'meteorProjectHome':
       title: 'Meteor Path'
       type: 'string'
-      description: 'Path where the meteor projects resist.'
+      description: 'Home directory where your meteor projects are located.'
       default: process.env.USERPROFILE
       order: 1
 
@@ -100,10 +111,25 @@ MeteorTools =
 
   startMeteor: ->
     # get project path for active editor
-    activeProjectPath = @getProjectPathForActiveBuffer()
-    console.log(activeProjectPath)
+    @activeProjectPath = @getProjectPathForActiveBuffer()
+    @console.log("=== Starting Meteor process in " + @activeProjectPath + "... ===")
+
+    if @activeProjectPath == null
+      alert("No active project found.")
+    else
+      @meteorProcess = ChildProcess.exec('meteor', cwd: @activeProjectPath)
+      @console.log("pid: "+@meteorProcess.pid)
+      # @meteorProcess = ChildProcess.spawn(, cwd: @activeProjectPath)
+      # bind callback for output from the child process
+      @meteorProcess.stdout.on 'data', (data) => @stdoutCallback(data)
+      @meteorProcess.stderr.on 'data', (data) => @stderrCallback(data)
+      @meteorProcess.on 'exit', (data) => @meteorExitCallback(data)
 
   stopMeteor: ->
     # get project path for active editor
-    activeProjectPath = @getProjectPathForActiveBuffer()
-    console.log(activeProjectPath)
+    if  @meteorProcess == null
+      alert('No know Meteor process.')
+    else
+      @console.log("=== Stopping Meteor process... ===")
+      ChildProcess.spawn("taskkill", ["/pid", @meteorProcess.pid, '/f', '/t']);
+      #@meteorProcess.kill('SIGKILL')
