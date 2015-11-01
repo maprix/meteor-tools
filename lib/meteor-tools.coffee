@@ -68,6 +68,7 @@ MeteorTools =
     @console = new ConsolePanel()
     @console.activityOff()
     @consolePanel = atom.workspace.addBottomPanel(item: @console, visible: false)
+    @console.setPanel(@consolePanel)
     @projectInput = new ProjectInput()
     @projectInput.projectNameEditor.on 'keyup', (event) => @keyUpCallback(event)
     @inputPanel = atom.workspace.addModalPanel(item: @projectInput, visible: false)
@@ -99,7 +100,6 @@ MeteorTools =
       order: 1
 
   toggleConsole: ->
-      #@console.addLine('another line')
       if @consolePanel.isVisible()
         @consolePanel.hide()
       else
@@ -115,7 +115,7 @@ MeteorTools =
     if data.match /App running/
       @console.log("Meteor is running\n&nbsp")
       @console.activityOff()
-      
+
   startMeteor: ->
     # get project path for active editor
     @activeProjectPath = @getProjectPathForActiveBuffer()
