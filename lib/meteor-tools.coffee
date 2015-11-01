@@ -36,6 +36,7 @@ MeteorTools =
     @meteorProcess = null
     @activeProjectPath = null
     @console.log("Meteor was stopped\n&nbsp")
+    @console.activityOff()
 
   keyUpCallback: (event) ->
     code = event.keyCode
@@ -43,11 +44,12 @@ MeteorTools =
       @inputPanel.hide()
     else if code == 13
       @inputPanel.hide()
-      @console.activityOn()
 
       @projectName = @projectInput.getText()
       @projectPath = atom.config.get("meteor-tools.meteorProjectHome")
 
+      @consolePanel.show()
+      @console.activityOn()
       @console.log("=== Creating Meteor project " + @projectName + " in " + @projectPath + "... ===")
       child = ChildProcess.exec('meteor create '+@projectName, cwd: @projectPath)
       # bind callback for output from the child process
@@ -109,9 +111,17 @@ MeteorTools =
     @projectInput.projectNameEditor.focus()
     @projectInput.projectNameEditor.getModel().selectAll()
 
+  checkMeteorOutput: (data) ->
+    if data.match /App running/
+      @console.log("Meteor is running\n&nbsp")
+      @console.activityOff()
+      
   startMeteor: ->
     # get project path for active editor
     @activeProjectPath = @getProjectPathForActiveBuffer()
+
+    @consolePanel.show()
+    @console.activityOn()
     @console.log("=== Starting Meteor process in " + @activeProjectPath + "... ===")
 
     if @activeProjectPath == null
@@ -121,7 +131,9 @@ MeteorTools =
       @console.log("pid: "+@meteorProcess.pid)
       # @meteorProcess = ChildProcess.spawn(, cwd: @activeProjectPath)
       # bind callback for output from the child process
-      @meteorProcess.stdout.on 'data', (data) => @stdoutCallback(data)
+      @meteorProcess.stdout.on 'data', (data) =>
+        @stdoutCallback(data)
+        @checkMeteorOutput(data)
       @meteorProcess.stderr.on 'data', (data) => @stderrCallback(data)
       @meteorProcess.on 'exit', (data) => @meteorExitCallback(data)
 
@@ -130,6 +142,8 @@ MeteorTools =
     if  @meteorProcess == null
       alert('No know Meteor process.')
     else
+      @consolePanel.show()
+      @console.activityOn()
       @console.log("=== Stopping Meteor process... ===")
       ChildProcess.spawn("taskkill", ["/pid", @meteorProcess.pid, '/f', '/t']);
       #@meteorProcess.kill('SIGKILL')
